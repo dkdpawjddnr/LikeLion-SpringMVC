@@ -8,10 +8,7 @@ import org.likelion.itemservice.domain.item.repository.ItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -30,7 +27,7 @@ public class BasicItemController {
     }
      */
     @GetMapping
-    public String items(Model model){
+    public String items(Model model) {
         List<Item> items = itemRepository.findAll();
         model.addAttribute("items", items);
         return "basic/items";
@@ -38,23 +35,59 @@ public class BasicItemController {
 
     // 추가
     @GetMapping("{itemId}")
-    public String item(@PathVariable("itemId") long itemId, Model model){
+    public String item(@PathVariable("itemId") long itemId, Model model) {
         Item item = itemRepository.findById(itemId);
         model.addAttribute("item", item);
         return "basic/item";
     }
 
     @GetMapping("/add")
-    public String addForm(){
+    public String addForm() {
         return "basic/addForm";
     }
 
     //같은 url이 오더라도 POST로 오면 save()가 호출됨.
-    @PostMapping("/add")
-    public String save(){
-        return "basic/addForm";
+    //@PostMapping("/add")
+    public String addItemV1(@RequestParam("itemName") String itemName,
+                            @RequestParam("price") int price,
+                            @RequestParam("quantity") Integer quantity,
+                            Model model) {
+        Item item = new Item();
+        item.setItemName(itemName);
+        item.setPrice(price);
+        item.setQuantity(quantity);
+
+        itemRepository.save(item);
+
+        model.addAttribute("item", item);
+
+        return "basic/item";
     }
 
+    //@PostMapping("/add")
+    public String addItemV2(@ModelAttribute("item") Item item, Model model) {
+       /*
+       @ModelAttribute가 자동으로 만들어줌
+        Item item = new Item();
+        item.setItemName(itemName);
+        item.setPrice(price);
+        item.setQuantity(quantity);
+        */
+        itemRepository.save(item);
+
+       // model.addAttribute("item", item); // 자동추가 생략 가능
+
+        return "basic/item";
+    }
+
+    @PostMapping("/add")
+    public String addItemV3(@ModelAttribute Item item) {
+
+        //첫 글자만 소문자로 바뀜
+        // Item -> item
+        itemRepository.save(item);
+        return "basic/item";
+    }
 
     /**
      *
