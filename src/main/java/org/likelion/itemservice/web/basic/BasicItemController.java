@@ -80,7 +80,7 @@ public class BasicItemController {
         return "basic/item";
     }
 
-    @PostMapping("/add")
+    // @PostMapping("/add")
     public String addItemV3(@ModelAttribute Item item) {
 
         //첫 글자만 소문자로 바뀜
@@ -88,7 +88,36 @@ public class BasicItemController {
         itemRepository.save(item);
         return "basic/item";
     }
+    /**
+     * @ModelAttribute 자체 생략 가능
+     * model.addAttribute(item) 자동 추가
+     */
+    //@PostMapping("/add")
+    public String addItemV4(Item item) {
+        itemRepository.save(item);
+        return "basic/item";
+    }
 
+    @PostMapping("/add")
+    public String addItemV5(Item item) {
+        itemRepository.save(item);
+        return "redirect:/basic/items/" + item.getId();
+    }
+    // 상품 수정 폼 과제
+    // 상품 조회랑 비슷
+    @GetMapping("/{itemId}/edit")
+    public String editForm(@PathVariable("itemId") Long itemId, Model model){
+        Item item = itemRepository.findById(itemId);
+        model.addAttribute("item", item);
+        return "basic/editForm";
+    }
+
+    // 저장 기능
+    @PostMapping("/{itemId}/edit")
+    public String edit(@PathVariable("itemId") Long itemId, @ModelAttribute Item item){
+        itemRepository.update(itemId, item);
+        return "redirect:/basic/items/{itemId}";
+    }
     /**
      *
      테스트용 데이터 추가
@@ -98,5 +127,4 @@ public class BasicItemController {
         itemRepository.save(new Item("testA", 10000, 10));
         itemRepository.save(new Item("testB", 20000, 20));
     }
-
 }
